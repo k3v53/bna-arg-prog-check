@@ -19,7 +19,7 @@ await page.goto(
 	'https://especiales.tiendabna.com.ar/catalog/promo-argentina-programa'
 );
 await page.waitForTimeout(10000);
-const textContent = await page.textContent('app-catalog');
+const textContent = await page.textContent('main');
 console.log('Contenido de la página en texto: "' + textContent + '"');
 let message = '';
 let disable_notification = true;
