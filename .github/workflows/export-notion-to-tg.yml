@@ -1,0 +1,52 @@
+name: Check on schedule
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 6 19 * *'
+jobs:
+  export_notion:
+    # timeout-minutes: 360
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 18
+      - name: npm dependencies cache
+        uses: actions/cache@v3
+        with:
+          path: ~/.npm
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-node-
+
+      - name: Install dependencies
+        run: npm ci
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+      - name: Run Notion Export
+        run: node notion-export.js
+        env:
+          TELEGRAM_CHAT_ID: ${{secrets.TELEGRAM_CHAT_ID}}
+          TELEGRAM_BOT_TOKEN: ${{secrets.TELEGRAM_BOT_TOKEN}}
+          NOT_HEADLESS: 0
+
+      - uses: actions/upload-artifact@v3
+        if: always()
+        with:
+          name: notion-export
+          path: data/
+
+  # upload_telegram:
+  #     runs-on: ubuntu-latest
+  #     steps:
+  #       - uses: actions/checkout@v3
+  #       - uses: actions/setup-node@v3
+  #         with:
+  #           node-version: 18
+  #       - name: Install dependencies
+  #         run: npm ci
+  #       - name: Install Playwright Browsers
+  #         run: npx playwright install --with-deps
+  #       - name: Run Telegram Upload
+  #         run: node telegram-upload.js
