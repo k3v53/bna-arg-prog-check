@@ -19,20 +19,15 @@ await page.goto(
 	'https://especiales.tiendabna.com.ar/catalog/promo-argentina-programa'
 );
 await page.waitForTimeout(10000);
-const textContent = await page.textContent('main');
-console.log('Contenido de la página en texto: "' + textContent + '"');
 let message = '';
 let disable_notification = true;
-if (textContent.length > 0) {
-	disable_notification = false;
-	message =
-		'Parece haber noticias en el bna:\n' +
-		textContent +
-		'\nhttps://especiales.tiendabna.com.ar/catalog/promo-argentina-programa';
-} else {
-	message = 'No hay novedades en el bna';
-}
-await bot.sendMessage(TELEGRAM_CHAT_ID, message, {
+const pageScreenshotPath = 'page_screenshot.png';
+const screenshotBuffer = await page.screenshot({
+	path: pageScreenshotPath,
+	fullPage: true,
+});
+
+await bot.sendPhoto(TELEGRAM_CHAT_ID, pageScreenshotPath, {
 	disable_notification: disable_notification,
 });
 // Pause for 10 seconds, to see what's going on.
